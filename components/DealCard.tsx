@@ -13,20 +13,34 @@ function money(v: number | null): string {
 export default function DealCard({ deal }: { deal: Deal }) {
   return (
     <article className="rounded-xl border border-zinc-800 bg-[#141417] overflow-hidden flex flex-col hover:border-amber-400/60 transition-colors">
+      <div className="relative aspect-[4/3] bg-zinc-900">
+        {deal.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={deal.imageUrl} alt={deal.title} className="h-full w-full object-contain p-2" loading="lazy" />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center text-zinc-700 text-4xl">🂠</div>
+        )}
+        <span
+          className={`absolute top-2 left-2 rounded px-2 py-0.5 text-[11px] font-bold tracking-wide ${
+            deal.category === 'pokemon' ? 'bg-emerald-500 text-black' : 'bg-sky-500 text-black'
+          }`}
+        >
+          {deal.category === 'pokemon' ? 'POKÉMON' : 'SPORTS'}
+        </span>
+        <span
+          className={`absolute top-2 right-2 rounded px-2 py-0.5 text-[11px] font-bold tracking-wide ${
+            deal.live ? 'bg-amber-400 text-black' : 'bg-zinc-700 text-zinc-300'
+          }`}
+        >
+          {deal.live ? 'LIVE' : 'SAMPLE'}
+        </span>
+      </div>
+
       <div className="p-4 flex flex-col gap-2 flex-1">
-        <div className="flex items-center gap-2">
-          <span
-            className={`rounded px-2 py-0.5 text-[11px] font-bold tracking-wide ${
-              deal.category === 'pokemon' ? 'bg-emerald-500 text-black' : 'bg-sky-500 text-black'
-            }`}
-          >
-            {deal.category === 'pokemon' ? 'POKÉMON' : 'SPORTS'}
-          </span>
-          {deal.setName && (
-            <span className="text-xs text-zinc-500 truncate">{deal.setName}</span>
-          )}
+        <div>
+          <h3 className="font-semibold text-[15px] leading-snug line-clamp-2">{deal.title}</h3>
+          {deal.setName && <p className="text-xs text-zinc-500">{deal.setName}</p>}
         </div>
-        <h3 className="font-semibold text-[15px] leading-snug line-clamp-2">{deal.title}</h3>
         <p className="text-xs text-zinc-500">
           hunt the typo <span className="text-amber-400/90 font-mono">"{deal.misspelling}"</span>
           <span className="text-zinc-600"> → {deal.term}</span>
@@ -34,12 +48,14 @@ export default function DealCard({ deal }: { deal: Deal }) {
 
         <div className="grid grid-cols-2 gap-3 pt-2">
           <div className="rounded-lg border border-zinc-800 bg-[#0b0b0d] p-3">
-            <p className="text-[11px] uppercase tracking-wide text-zinc-500">Raw market</p>
+            <p className="text-[11px] uppercase tracking-wide text-zinc-500">Market price</p>
             <p className="text-xl font-extrabold text-amber-400 tabular-nums">{money(deal.rawPrice)}</p>
+            <p className="text-[10px] text-zinc-600">{deal.live ? 'TCGplayer · live' : 'sample'}</p>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-[#0b0b0d] p-3">
             <p className="text-[11px] uppercase tracking-wide text-zinc-500">Graded market</p>
             <p className="text-xl font-extrabold text-amber-400 tabular-nums">{money(deal.gradedPrice)}</p>
+            <p className="text-[10px] text-zinc-600">{deal.gradedPrice !== null ? 'sample' : 'n/a'}</p>
           </div>
         </div>
 

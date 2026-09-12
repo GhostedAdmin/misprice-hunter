@@ -12,7 +12,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="text-sm font-medium text-zinc-400 hover:text-amber-400 transition-colors"
+      className="flex items-center min-h-[44px] px-3 text-sm font-medium text-zinc-400 hover:text-amber-400 transition-colors"
     >
       {children}
     </Link>
@@ -24,16 +24,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="h-full">
       <body className="min-h-full flex flex-col">
         <header className="border-b border-zinc-800 bg-[#0b0b0d] sticky top-0 z-40">
-          <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2.5">
+          <div className="mx-auto max-w-6xl px-4 py-2 sm:py-0 sm:h-16 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <Link href="/" className="flex items-center gap-2 shrink-0">
               <span className="flex h-9 w-9 items-center justify-center rounded-md bg-amber-400 text-black text-lg font-black">
                 ⌖
               </span>
-              <span className="font-extrabold tracking-tight text-lg">
+              <span className="font-extrabold tracking-tight text-base sm:text-lg">
                 MISPRICE<span className="text-amber-400">HUNTER</span>
               </span>
             </Link>
-            <nav className="flex items-center gap-6">
+            <nav className="flex items-center gap-0.5 sm:gap-6">
               <NavLink href="/">Deals</NavLink>
               <NavLink href="/how-it-works">How it works</NavLink>
               <NavLink href="/word-list">Word list</NavLink>

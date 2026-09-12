@@ -15,7 +15,9 @@ const IMAGE_CACHE = new Map<string, string | null>();
 
 function listingImage(r: any): string | null {
   const u = r?.image_url;
-  return typeof u === 'string' && u.startsWith('http') ? u : null;
+  if (typeof u !== 'string' || !u.startsWith('http')) return null;
+  // eBay serves small thumbs by default (s-l225); swap in the full-size version.
+  return u.replace(/\/s-l\d+\.(jpg|jpeg|png|webp)$/i, '/s-l1600.$1');
 }
 
 async function sportsImage(cardId: string, title: string): Promise<string | null> {

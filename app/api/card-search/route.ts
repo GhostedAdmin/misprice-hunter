@@ -53,6 +53,20 @@ async function searchPokemon(q: string): Promise<PokemonHit[]> {
   }
 }
 
+// CardSight catalog names sometimes repeat the subject ("Mickey Mantle /
+// Mickey Mantle / …") — collapse consecutive duplicates for display.
+function cleanSportsName(name: string): string {
+  const parts = String(name)
+    .split('/')
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const out: string[] = [];
+  for (const p of parts) {
+    if (out.length === 0 || out[out.length - 1].toLowerCase() !== p.toLowerCase()) out.push(p);
+  }
+  return out.join(' / ') || 'Unknown card';
+}
+
 async function searchSports(q: string): Promise<SportsHit[]> {
   if (!sportsConfigured()) return [];
   try {
@@ -68,7 +82,7 @@ async function searchSports(q: string): Promise<SportsHit[]> {
         if (r.cardNumber) bits.push(`#${r.cardNumber}`);
         return {
           cardId: String(r.id),
-          title: String(r.name ?? 'Unknown card'),
+          title: cleanSportsName(r.name ?? 'Unknown card'),
           subtitle: bits.join(' · '),
           segment: String(r.segmentName ?? ''),
         };

@@ -21,6 +21,7 @@ export interface MarketDeal {
   priceUrl: string; // TCGplayer product page
   imageUrl: string | null; // card image
   live: true;
+  source: 'TCGplayer';
 }
 
 const API = 'https://api.tcgdex.net/v2/en';
@@ -115,6 +116,7 @@ export async function fetchPokemonPrices(): Promise<MarketDeal[]> {
               : `https://www.tcgplayer.com/search/all/product?q=${encodeURIComponent(term.term)}`,
             imageUrl: c.image ? `${c.image}/high.png` : null,
             live: true as const,
+            source: 'TCGplayer' as const,
           };
         } catch {
           return null;

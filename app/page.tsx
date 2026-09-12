@@ -215,6 +215,28 @@ export default function Home() {
           </div>
         )}
 
+        {/* HUNT MANUALLY */}
+        <section className="mt-10 rounded-xl border border-zinc-800 bg-[#141417] p-6">
+          <h2 className="text-lg font-bold">
+            🎯 Hunt manually — <span className="text-amber-400">no API key needed</span>
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+            Typo arbitrage works on <span className="text-zinc-100 font-semibold">every</span>{' '}
+            marketplace, not just eBay. The hunt buttons on each listing run that exact
+            misspelling as a search across eBay (ending soonest, newly listed, cheapest Buy It
+            Now), TCGplayer, Mercari, Facebook Marketplace, and Whatnot — so a dead or delayed
+            API key never stops the hunt. Hit <span className="text-amber-300 font-semibold">Open
+            all</span> to fire every search at once, then check the tabs and bid on what other
+            hunters can't find.
+          </p>
+          <a
+            href="/word-list"
+            className="mt-4 inline-block rounded-lg border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-200 hover:border-amber-400/60 hover:text-amber-300 transition-colors"
+          >
+            Browse the full typo dictionary →
+          </a>
+        </section>
+
         <p className="mt-8 text-center text-xs text-zinc-600 max-w-2xl mx-auto">
           These are auctions other bidders may have missed — that makes them <em>worth a look</em>,
           not guaranteed deals. Always check the seller, the photos, and the description before you bid.

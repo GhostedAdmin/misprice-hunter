@@ -1,9 +1,33 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { MISSPELLINGS, type Category } from '@/lib/misspellings';
+import HuntButtons from '@/components/HuntButtons';
+import { MISSPELLINGS, type Category, type MisspellingEntry } from '@/lib/misspellings';
 
 type Filter = 'all' | Category;
+
+function EntryHunt({ entry }: { entry: MisspellingEntry }) {
+  const [selected, setSelected] = useState(entry.misspellings[0]);
+  return (
+    <div className="mt-4 rounded-lg border border-zinc-800 bg-black/30 p-3">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <span className="text-xs text-zinc-500">Hunt typo:</span>
+        <select
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+          className="rounded-lg border border-zinc-700 bg-[#0b0b0d] px-2.5 py-1.5 font-mono text-sm text-amber-300"
+        >
+          {entry.misspellings.map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
+        </select>
+      </div>
+      <HuntButtons query={selected} />
+    </div>
+  );
+}
 
 export default function WordList() {
   const [filter, setFilter] = useState<Filter>('all');
@@ -29,7 +53,7 @@ export default function WordList() {
       <h1 className="mt-3 text-4xl sm:text-5xl font-black tracking-tight">Word list</h1>
       <p className="mt-4 text-zinc-400 text-lg">
         Every typo the scanner checks — {MISSPELLINGS.length} search terms, {total} misspellings.
-        To add more, edit <span className="font-mono text-sm text-zinc-200">lib/misspellings.ts</span>.
+        Pick a typo on any entry to hunt it across every marketplace — no API key needed.
       </p>
 
       <div className="mt-8 flex flex-wrap gap-3 items-center">
@@ -77,6 +101,7 @@ export default function WordList() {
                 </span>
               ))}
             </div>
+            <EntryHunt entry={e} />
           </div>
         ))}
         {entries.length === 0 && (

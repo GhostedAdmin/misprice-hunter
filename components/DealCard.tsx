@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import HuntButtons from '@/components/HuntButtons';
 import type { Deal } from '@/lib/deals';
 
 function formatCountdown(endTime: string): { text: string; urgent: boolean; ended: boolean } {
@@ -55,6 +56,9 @@ export default function DealCard({ deal }: { deal: Deal }) {
           surfaced by typo <span className="text-amber-400/90 font-mono">"{deal.misspelling}"</span>
           <span className="text-zinc-600"> → {deal.term}</span>
         </p>
+        <div className="pt-1">
+          <HuntButtons query={deal.misspelling} />
+        </div>
 
         <div className="mt-auto pt-2 flex items-end justify-between">
           <div>

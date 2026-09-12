@@ -12,12 +12,13 @@ export interface Deal {
   priceUrl: string; // full price history link
   imageUrl: string | null;
   live: boolean; // false = clearly-labeled sample
+  source: string; // where the numbers came from: 'sample' | 'TCGplayer' | 'CardSight AI'
 }
 
 // ---------------------------------------------------------------------------
 // DEMO DATA — fallback when the live feed hiccups, and the standing sample
-// set for sports cards (no free sports pricing API exists). Never presented
-// as live results; every card carries a real photo of that exact card.
+// set for sports cards when no CardSight API key is configured. Never
+// presented as live results; every card carries a real photo of that exact card.
 // ---------------------------------------------------------------------------
 
 const TCGDEX_IMG = 'https://assets.tcgdex.net';
@@ -66,5 +67,6 @@ export function demoDeals(): Deal[] {
     priceUrl: priceUrlFor(s.category, s.term),
     imageUrl: s.image,
     live: false,
+    source: 'sample',
   }));
 }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import DealCard from '@/components/DealCard';
 import MoversTicker from '@/components/MoversTicker';
 import CardSearch from '@/components/CardSearch';
+import TypoFinds from '@/components/TypoFinds';
 import type { Deal } from '@/lib/deals';
 
 type Filter = 'all' | 'pokemon' | 'sports';
@@ -168,6 +169,9 @@ export default function Home() {
             <span className="text-amber-300 font-semibold">“{query.trim()}”</span>
           </p>
         )}
+
+        {/* PRE-HUNTED TYPO FINDS — refreshed every 8 hours by the typo hunter */}
+        {!query.trim() && <TypoFinds />}
 
         {/* GRID */}
         {loading ? (

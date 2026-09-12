@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import DealCard from '@/components/DealCard';
-import { MISSPELLINGS } from '@/lib/misspellings';
+import MoversTicker from '@/components/MoversTicker';
 import type { Deal } from '@/lib/deals';
 
 type Filter = 'all' | 'pokemon' | 'sports';
-type Sort = 'raw' | 'graded' | 'name';
+type Sort = 'value-desc' | 'value-asc' | 'name';
 
 interface ScanResponse {
   demo: boolean;
@@ -17,14 +17,13 @@ interface ScanResponse {
   deals: Deal[];
 }
 
-const TICKER_WORDS = MISSPELLINGS.flatMap((e) => e.misspellings.slice(0, 2));
-
 export default function Home() {
   const [data, setData] = useState<ScanResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
-  const [sort, setSort] = useState<Sort>('graded');
+  const [sort, setSort] = useState<Sort>('value-desc');
+  const [query, setQuery] = useState('');
 
   const fetchDeals = useCallback(async (refresh = false) => {
     const res = await fetch(`/api/scan${refresh ? '?refresh=1' : ''}`);
@@ -51,14 +50,28 @@ export default function Home() {
     if (!data) return [];
     let list = data.deals;
     if (filter !== 'all') list = list.filter((d) => d.category === filter);
+    const q = query.trim().toLowerCase();
+    if (q) {
+      list = list.filter((d) =>
+        [d.title, d.setName, d.term, d.misspelling].some((s) =>
+          s.toLowerCase().includes(q),
+        ),
+      );
+    }
+    const primary = (d: Deal) => d.rawPrice ?? d.gradedPrice ?? -1;
     const sorted = [...list];
-    if (sort === 'raw') sorted.sort((a, b) => (a.rawPrice ?? Infinity) - (b.rawPrice ?? Infinity));
-    else if (sort === 'graded') sorted.sort((a, b) => (b.gradedPrice ?? -1) - (a.gradedPrice ?? -1));
+    if (sort === 'value-desc') sorted.sort((a, b) => primary(b) - primary(a));
+    else if (sort === 'value-asc')
+      sorted.sort(
+        (a, b) =>
+          (a.rawPrice ?? a.gradedPrice ?? Infinity) -
+          (b.rawPrice ?? b.gradedPrice ?? Infinity),
+      );
     else sorted.sort((a, b) => a.title.localeCompare(b.title));
     return sorted;
-  }, [data, filter, sort]);
+  }, [data, filter, sort, query]);
 
-  const typoCount = MISSPELLINGS.reduce((n, e) => n + e.misspellings.length, 0);
+  const totalCount = data?.deals.length ?? 0;
 
   return (
     <div>
@@ -75,9 +88,9 @@ export default function Home() {
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-zinc-400 text-base sm:text-lg">
             Misspelled listings get fewer eyeballs — and lower final bids. Misprice Hunter
-            pulls live TCGplayer market prices for {typoCount}+ tracked Pokémon cards — no
-            API key needed — so you know what the correctly-spelled card is worth before
-            you hunt the typo across every marketplace.
+            tracks {totalCount || '24'} iconic cards with live market prices — TCGplayer for
+            Pokémon, CardSight AI for sports — so you know what the correctly-spelled card
+            is worth before you hunt the typo across every marketplace.
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <button
@@ -100,18 +113,10 @@ export default function Home() {
               : `Live market prices${data?.sportsLive ? ' (Pokémon + sports)' : ' (Pokémon · sports samples)'} · updated ${data?.updatedAt ? new Date(data.updatedAt).toLocaleTimeString() : '—'}`}
           </p>
         </div>
-        {/* typo ticker */}
-        <div className="border-t border-zinc-800 overflow-hidden py-3 select-none" aria-hidden>
-          <div className="ticker flex whitespace-nowrap gap-8 w-max">
-            {[...TICKER_WORDS, ...TICKER_WORDS].map((w, i) => (
-              <span key={i} className="font-mono text-sm text-zinc-600">
-                <span className="text-red-400/70 line-through">{w}</span>
-                <span className="text-zinc-700"> → </span>
-                <span className="text-zinc-500">fewer bids</span>
-              </span>
-            ))}
-          </div>
-        </div>
+        {/* market movers ticker */}
+        {data && data.deals.length > 0 && (
+          <MoversTicker deals={data.deals} live={!data.demo} />
+        )}
       </section>
 
       <div className="mx-auto max-w-6xl px-4 py-8">
@@ -125,8 +130,31 @@ export default function Home() {
           </div>
         )}
 
+        {/* SEARCH */}
+        <div className="relative mb-4">
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg text-zinc-600">
+            ⌕
+          </span>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search any card — try “Charizard”, “Jordan”, or a set…"
+            aria-label="Search cards"
+            className="w-full rounded-xl border border-zinc-800 bg-[#141417] py-3 pl-11 pr-11 text-[15px] text-zinc-100 placeholder:text-zinc-600 focus:border-amber-400/60 focus:outline-none"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full text-zinc-500 hover:text-white"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
         {/* FILTERS */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-2">
           <div className="flex rounded-lg border border-zinc-800 overflow-hidden">
             {(['all', 'pokemon', 'sports'] as Filter[]).map((f) => (
               <button
@@ -147,12 +175,18 @@ export default function Home() {
               onChange={(e) => setSort(e.target.value as Sort)}
               className="rounded-lg border border-zinc-800 bg-[#141417] px-3 py-2 text-sm font-medium text-zinc-200"
             >
-              <option value="graded">Highest graded</option>
-              <option value="raw">Lowest raw</option>
+              <option value="value-desc">Highest value</option>
+              <option value="value-asc">Lowest value</option>
               <option value="name">A–Z</option>
             </select>
           </div>
         </div>
+        {query.trim() && (
+          <p className="mb-4 text-sm text-zinc-500">
+            {deals.length} of {totalCount} cards match{' '}
+            <span className="text-amber-300 font-semibold">“{query.trim()}”</span>
+          </p>
+        )}
 
         {/* GRID */}
         {loading ? (
@@ -163,7 +197,17 @@ export default function Home() {
           </div>
         ) : deals.length === 0 ? (
           <div className="rounded-xl border border-zinc-800 bg-[#141417] p-12 text-center text-zinc-500">
-            No cards matched this filter right now. Hit refresh or try another category.
+            {query.trim() ? (
+              <>
+                Nothing matches <span className="text-amber-300 font-semibold">“{query.trim()}”</span>.
+                <br />
+                <button onClick={() => setQuery('')} className="mt-3 text-sm font-semibold text-amber-400 hover:text-amber-300">
+                  Clear search →
+                </button>
+              </>
+            ) : (
+              'No cards matched this filter right now. Hit refresh or try another category.'
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

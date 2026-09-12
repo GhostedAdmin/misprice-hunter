@@ -11,6 +11,12 @@ function money(v: number | null): string {
 }
 
 export default function DealCard({ deal }: { deal: Deal }) {
+  const isPokemon = deal.category === 'pokemon';
+  const sourceLabel = deal.live ? `${deal.source} · live` : 'sample';
+  const range =
+    deal.lowPrice != null && deal.highPrice != null
+      ? `${money(deal.lowPrice)}–${money(deal.highPrice)}`
+      : null;
   return (
     <article className="rounded-xl border border-zinc-800 bg-[#141417] overflow-hidden flex flex-col hover:border-amber-400/60 transition-colors">
       <div className="relative aspect-[4/3] bg-zinc-900">
@@ -48,14 +54,34 @@ export default function DealCard({ deal }: { deal: Deal }) {
 
         <div className="grid grid-cols-2 gap-3 pt-2">
           <div className="rounded-lg border border-zinc-800 bg-[#0b0b0d] p-3">
-            <p className="text-[11px] uppercase tracking-wide text-zinc-500">Market price</p>
-            <p className="text-xl font-extrabold text-amber-400 tabular-nums">{money(deal.rawPrice)}</p>
-            <p className="text-[10px] text-zinc-600">{deal.live ? `${deal.source} · live` : 'sample'}</p>
+            <p className="text-[11px] uppercase tracking-wide text-zinc-500">
+              {isPokemon ? 'Market price' : 'Raw market'}
+            </p>
+            {deal.rawPrice !== null ? (
+              <p className="text-xl font-extrabold text-amber-400 tabular-nums">{money(deal.rawPrice)}</p>
+            ) : (
+              <p className="text-sm font-semibold text-zinc-500 pt-1.5">No recent sales</p>
+            )}
+            <p className="text-[10px] text-zinc-600">{sourceLabel}</p>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-[#0b0b0d] p-3">
-            <p className="text-[11px] uppercase tracking-wide text-zinc-500">Graded market</p>
-            <p className="text-xl font-extrabold text-amber-400 tabular-nums">{money(deal.gradedPrice)}</p>
-            <p className="text-[10px] text-zinc-600">{deal.gradedPrice !== null ? 'sample' : 'n/a'}</p>
+            {isPokemon ? (
+              <>
+                <p className="text-[11px] uppercase tracking-wide text-zinc-500">Price range</p>
+                <p className="text-base sm:text-lg font-extrabold text-amber-400 tabular-nums pt-0.5">
+                  {range ?? '—'}
+                </p>
+                <p className="text-[10px] text-zinc-600">{sourceLabel}</p>
+              </>
+            ) : (
+              <>
+                <p className="text-[11px] uppercase tracking-wide text-zinc-500">Graded market</p>
+                <p className="text-xl font-extrabold text-amber-400 tabular-nums">{money(deal.gradedPrice)}</p>
+                <p className="text-[10px] text-zinc-600">
+                  {deal.gradedPrice !== null ? sourceLabel : 'n/a'}
+                </p>
+              </>
+            )}
           </div>
         </div>
 

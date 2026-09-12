@@ -18,6 +18,8 @@ export interface MarketDeal {
   misspelling: string; // top typo — feeds the hunt buttons
   rawPrice: number | null; // TCGplayer market, dollars
   gradedPrice: number | null; // TCGdex has no graded prices — always null
+  lowPrice: number | null; // TCGplayer low across finishes, dollars
+  highPrice: number | null; // TCGplayer high across finishes, dollars
   priceUrl: string; // TCGplayer product page
   imageUrl: string | null; // card image
   live: true;
@@ -51,6 +53,8 @@ const TERM_CARD_IDS: Record<string, string> = {
 
 interface TcgdexPriceBucket {
   marketPrice?: number;
+  lowPrice?: number;
+  highPrice?: number;
 }
 
 interface TcgdexCard {
@@ -71,18 +75,22 @@ async function fetchCard(id: string): Promise<TcgdexCard> {
   return res.json();
 }
 
-function marketOf(card: TcgdexCard): number | null {
+function marketRangeOf(card: TcgdexCard): { market: number | null; low: number | null; high: number | null } {
   const p = card.pricing?.tcgplayer;
-  if (!p) return null;
-  for (const k of ['holofoil', 'normal', 'reverse-holofoil']) {
-    const m = p[k]?.marketPrice;
-    if (typeof m === 'number' && m > 0) return m;
+  if (!p) return { market: null, low: null, high: null };
+  let market: number | null = null;
+  let low: number | null = null;
+  let high: number | null = null;
+  const buckets = ['holofoil', 'normal', 'reverse-holofoil']
+    .map((k) => p[k])
+    .concat(Object.values(p));
+  for (const b of buckets) {
+    if (!b) continue;
+    if (market === null && typeof b.marketPrice === 'number' && b.marketPrice > 0) market = b.marketPrice;
+    if (typeof b.lowPrice === 'number' && b.lowPrice > 0) low = low === null ? b.lowPrice : Math.min(low, b.lowPrice);
+    if (typeof b.highPrice === 'number' && b.highPrice > 0) high = high === null ? b.highPrice : Math.max(high, b.highPrice);
   }
-  for (const v of Object.values(p)) {
-    const m = v?.marketPrice;
-    if (typeof m === 'number' && m > 0) return m;
-  }
-  return null;
+  return { market, low, high };
 }
 
 /**
@@ -100,8 +108,8 @@ export async function fetchPokemonPrices(): Promise<MarketDeal[]> {
         if (!cardId) return null;
         try {
           const c = await fetchCard(cardId);
-          const m = marketOf(c);
-          if (m === null) return null;
+          const { market, low, high } = marketRangeOf(c);
+          if (market === null) return null;
           const tpId = c.thirdParty?.tcgplayer;
           return {
             id: `tcgdex-${c.id}`,
@@ -109,8 +117,10 @@ export async function fetchPokemonPrices(): Promise<MarketDeal[]> {
             setName: c.set?.name ?? '',
             term: term.term,
             misspelling: term.misspellings[0] ?? term.term,
-            rawPrice: m,
+            rawPrice: market,
             gradedPrice: null,
+            lowPrice: low,
+            highPrice: high,
             priceUrl: tpId
               ? `https://www.tcgplayer.com/product/${tpId}`
               : `https://www.tcgplayer.com/search/all/product?q=${encodeURIComponent(term.term)}`,

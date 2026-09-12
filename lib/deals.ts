@@ -9,6 +9,8 @@ export interface Deal {
   category: Category;
   rawPrice: number | null; // raw/ungraded market, dollars
   gradedPrice: number | null; // graded market, dollars (null when the source has none)
+  lowPrice?: number | null; // low end of market range, dollars (Pokémon via TCGdex)
+  highPrice?: number | null; // high end of market range, dollars (Pokémon via TCGdex)
   priceUrl: string; // full price history link
   imageUrl: string | null;
   live: boolean; // false = clearly-labeled sample
@@ -64,6 +66,10 @@ export function demoDeals(): Deal[] {
     category: s.category,
     rawPrice: s.rawPrice,
     gradedPrice: s.gradedPrice,
+    // Sample range derived from the sample market price — illustrative only,
+    // like everything else in the demo set.
+    lowPrice: Math.round(s.rawPrice * 0.8 * 100) / 100,
+    highPrice: Math.round(s.rawPrice * 1.6 * 100) / 100,
     priceUrl: priceUrlFor(s.category, s.term),
     imageUrl: s.image,
     live: false,

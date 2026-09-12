@@ -8,8 +8,6 @@ import type { Deal } from '@/lib/deals';
 type Filter = 'all' | 'pokemon' | 'sports';
 type Sort = 'raw' | 'graded' | 'name';
 
-const PTCG_KEY = 'mh_ptcg_key';
-
 interface ScanResponse {
   demo: boolean;
   updatedAt: string;
@@ -26,21 +24,9 @@ export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const [sort, setSort] = useState<Sort>('graded');
-  const [showSettings, setShowSettings] = useState(false);
-  const [ptcgKey, setPtcgKey] = useState('');
-  const [hasToken, setHasToken] = useState(false);
-
-  useEffect(() => {
-    const t = localStorage.getItem(PTCG_KEY) ?? '';
-    setPtcgKey(t);
-    setHasToken(Boolean(t));
-  }, []);
 
   const fetchDeals = useCallback(async (refresh = false) => {
-    const stored = localStorage.getItem(PTCG_KEY) ?? '';
-    const headers: Record<string, string> = {};
-    if (stored) headers['x-ptcg-key'] = stored;
-    const res = await fetch(`/api/scan${refresh ? '?refresh=1' : ''}`, { headers });
+    const res = await fetch(`/api/scan${refresh ? '?refresh=1' : ''}`);
     const json: ScanResponse = await res.json();
     setData(json);
   }, []);
@@ -58,20 +44,6 @@ export default function Home() {
     } finally {
       setRefreshing(false);
     }
-  };
-
-  const saveToken = () => {
-    localStorage.setItem(PTCG_KEY, ptcgKey.trim());
-    setHasToken(Boolean(ptcgKey.trim()));
-    setShowSettings(false);
-    onRefresh();
-  };
-
-  const clearToken = () => {
-    localStorage.removeItem(PTCG_KEY);
-    setPtcgKey('');
-    setHasToken(false);
-    onRefresh();
   };
 
   const deals = useMemo(() => {
@@ -102,9 +74,9 @@ export default function Home() {
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-zinc-400 text-base sm:text-lg">
             Misspelled listings get fewer eyeballs — and lower final bids. Misprice Hunter
-            pulls live TCGplayer market prices for {typoCount}+ tracked Pokémon cards, so you
-            know what the correctly-spelled card is worth before you hunt the typo across
-            every marketplace.
+            pulls live TCGplayer market prices for {typoCount}+ tracked Pokémon cards — no
+            API key needed — so you know what the correctly-spelled card is worth before
+            you hunt the typo across every marketplace.
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <button
@@ -114,17 +86,17 @@ export default function Home() {
             >
               {refreshing ? 'Scanning…' : '↻ Refresh prices'}
             </button>
-            <button
-              onClick={() => setShowSettings(true)}
+            <a
+              href="/how-it-works"
               className="rounded-lg border border-zinc-700 px-6 py-3 font-semibold text-zinc-200 hover:border-amber-400/60 hover:text-amber-300 transition-colors"
             >
-              {hasToken ? '✓ Price key connected' : 'Connect free price key'}
-            </button>
+              How it works
+            </a>
           </div>
           <p className="mt-4 text-xs text-zinc-600">
             {data?.demo
-              ? 'Showing sample prices — connect your free Pokémon TCG key for live market data.'
-              : `Live market prices · updated ${data?.updatedAt ? new Date(data.updatedAt).toLocaleTimeString() : '—'}`}
+              ? 'Showing sample prices — live data will return automatically.'
+              : `Live TCGplayer market prices · no key needed · updated ${data?.updatedAt ? new Date(data.updatedAt).toLocaleTimeString() : '—'}`}
           </p>
         </div>
         {/* typo ticker */}
@@ -144,22 +116,11 @@ export default function Home() {
       <div className="mx-auto max-w-6xl px-4 py-8">
         {/* DEMO / ERROR BANNERS */}
         {data?.demo && (
-          <div className="mb-6 rounded-xl border border-amber-400/40 bg-amber-400/10 p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+          <div className="mb-6 rounded-xl border border-amber-400/40 bg-amber-400/10 p-4">
             <p className="text-sm text-amber-200">
-              <span className="font-bold">Sample prices.</span> These are sample market values so you can see
-              the product. Add your free Pokémon TCG key for live Pokémon market data — takes 2 minutes.
+              <span className="font-bold">Sample prices.</span> The live price feed hiccuped
+              {data.error ? ` (${data.error})` : ''} — showing sample values until the next refresh.
             </p>
-            <button
-              onClick={() => setShowSettings(true)}
-              className="shrink-0 rounded-lg bg-amber-400 px-4 py-2 text-sm font-bold text-black hover:bg-amber-300"
-            >
-              Get live prices
-            </button>
-          </div>
-        )}
-        {data?.error && (
-          <div className="mb-6 rounded-xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
-            Price lookup hit a snag ({data.error}). Showing demo prices instead.
           </div>
         )}
 
@@ -238,53 +199,6 @@ export default function Home() {
           the description before you bid on a misspelled listing.
         </p>
       </div>
-
-      {/* SETTINGS MODAL */}
-      {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setShowSettings(false)}>
-          <div
-            className="w-full max-w-md rounded-xl border border-zinc-700 bg-[#141417] p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-xl font-bold">Connect your free price key</h2>
-            <ol className="mt-3 text-sm text-zinc-400 space-y-1.5 list-decimal list-inside">
-              <li>Go to <span className="text-zinc-200 font-mono">dev.pokemontcg.io</span> and sign up (free)</li>
-              <li>Copy your API key from the dashboard</li>
-              <li>Paste it below — it stays in your browser only</li>
-            </ol>
-            <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
-              Pokémon TCG API key
-            </label>
-            <input
-              value={ptcgKey}
-              onChange={(e) => setPtcgKey(e.target.value)}
-              type="password"
-              placeholder="e.g. 12345678-1234-1234-1234-123456789012"
-              className="mt-1 w-full rounded-lg border border-zinc-700 bg-[#0b0b0d] px-3 py-2.5 font-mono text-sm"
-            />
-            <div className="mt-5 flex gap-3">
-              <button
-                onClick={saveToken}
-                disabled={!ptcgKey.trim()}
-                className="flex-1 rounded-lg bg-amber-400 px-4 py-2.5 font-bold text-black hover:bg-amber-300 disabled:opacity-40"
-              >
-                Save & go live
-              </button>
-              {hasToken && (
-                <button
-                  onClick={clearToken}
-                  className="rounded-lg border border-zinc-700 px-4 py-2.5 text-sm text-zinc-400 hover:text-white"
-                >
-                  Disconnect
-                </button>
-              )}
-            </div>
-            <p className="mt-3 text-[11px] text-zinc-600">
-              The token is stored in this browser's localStorage and sent only to this site's API route to fetch live Pokémon market prices. Never shared.
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

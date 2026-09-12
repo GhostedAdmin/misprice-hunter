@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchPokemonCard, marketRangeOf, type TcgdexCard } from '@/lib/prices';
-import { fetchSportsDetail, sportsConfigured } from '@/lib/sports';
+import { cardsightGet, fetchSportsDetail, sportsConfigured } from '@/lib/sports';
 import type { Deal } from '@/lib/deals';
 
 export const dynamic = 'force-dynamic';
@@ -8,6 +8,40 @@ export const maxDuration = 30;
 
 // On-demand pricing for one card picked from universal search. Returns a
 // complete Deal so the UI can render it exactly like a tracked card.
+
+// Resolved sports artwork, cached per card UUID — the catalog carries no
+// images, so the photo comes from a completed-auction listing instead.
+const IMAGE_CACHE = new Map<string, string | null>();
+
+function listingImage(r: any): string | null {
+  const u = r?.image_url;
+  return typeof u === 'string' && u.startsWith('http') ? u : null;
+}
+
+async function sportsImage(cardId: string, title: string): Promise<string | null> {
+  if (IMAGE_CACHE.has(cardId)) return IMAGE_CACHE.get(cardId) ?? null;
+  let img: string | null = null;
+  try {
+    const json: any = await cardsightGet(
+      `/v1/pricing/search?q=${encodeURIComponent(title)}&listing_type=auction&period=3m&limit=10`,
+    );
+    const results: any[] = json?.results || json?.data?.results || [];
+    const matched = results.find((r) => {
+      const mc = r?.matched_card;
+      const id = typeof mc === 'string' ? mc : mc?.id;
+      return id != null && String(id) === cardId && listingImage(r);
+    });
+    img = (matched && listingImage(matched)) || results.map(listingImage).find(Boolean) || null;
+  } catch {
+    img = null;
+  }
+  IMAGE_CACHE.set(cardId, img);
+  if (IMAGE_CACHE.size > 300) {
+    const oldest = IMAGE_CACHE.keys().next().value;
+    if (oldest) IMAGE_CACHE.delete(oldest);
+  }
+  return img;
+}
 
 function pokemonDeal(c: TcgdexCard): Deal {
   const { market, low, high } = marketRangeOf(c);
@@ -51,7 +85,13 @@ export async function GET(req: NextRequest) {
       if (!cardId) throw new Error('missing cardId');
       const title = (params.get('title') || 'Sports card').slice(0, 120);
       const subtitle = (params.get('subtitle') || '').slice(0, 160);
-      const { raw, graded } = await fetchSportsDetail(cardId);
+      // Pricing + artwork in parallel. The catalog has no images, so the
+      // photo comes from the first completed-auction listing with one —
+      // cached per card so repeat views cost nothing.
+      const [{ raw, graded }, imageUrl] = await Promise.all([
+        fetchSportsDetail(cardId),
+        sportsImage(cardId, title),
+      ]);
       if (raw === null && graded === null) throw new Error('no pricing found for this card');
       const deal: Deal = {
         id: `cardsight-${cardId}`,
@@ -63,7 +103,7 @@ export async function GET(req: NextRequest) {
         rawPrice: raw,
         gradedPrice: graded,
         priceUrl: `https://www.sportscardspro.com/search-products?q=${encodeURIComponent(title)}&type=prices`,
-        imageUrl: null, // catalog search returns no artwork — modal shows a segment mark
+        imageUrl,
         live: true,
         source: 'CardSight AI',
       };

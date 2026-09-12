@@ -14,7 +14,7 @@ const STEPS = [
   {
     n: '03',
     title: 'We price the real card for you',
-    body: 'Misprice Hunter pulls live TCGplayer market prices for every tracked Pokémon card through TCGdex — free, no API key, refreshed hourly — so you know what the correctly-spelled card is actually worth. (Sports cards show sample values for now — no free sports pricing API exists yet.)',
+    body: 'Misprice Hunter pulls live TCGplayer market prices for every tracked Pokémon card through TCGdex — free, no API key, refreshed hourly — so you know what the correctly-spelled card is actually worth. Sports cards pull live market prices through CardSight AI\u2019s free tier when an API key is configured — otherwise they show clearly-labeled samples.',
   },
   {
     n: '04',

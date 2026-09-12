@@ -1,14 +1,12 @@
-// Misprice Hunter — live market pricing via the free Pokémon TCG API
-// (pokemontcg.io, key at https://dev.pokemontcg.io). Every card object
-// carries TCGplayer market prices, updated daily.
+// Misprice Hunter — live market pricing via TCGdex (https://api.tcgdex.net)
+// Free, no API key, no signup, no rate limits. Every card carries TCGplayer
+// market prices (USD) plus Cardmarket (EUR), refreshed daily.
 //
-//   GET https://api.pokemontcg.io/v2/cards?q=name:<term>*&pageSize=12
-//   header X-Api-Key: <key>   (works keyless too, but shared-host IPs burn
-//   through the 1k/day anonymous quota fast, so we ask for a key)
+//   GET https://api.tcgdex.net/v2/en/cards/<setId>-<localId>
 //
-// Sports cards have no verifiable free API (PriceCharting/SportsCardsPro
-// moved API access behind paid tiers in 2026), so sports entries stay on
-// clearly-labeled sample prices until a sports source is added.
+// Card IDs below are the iconic printing per tracked term (e.g. Base Set
+// Charizard for "Charizard"), resolved once and pinned so scans are fast and
+// stable: 18 requests per scan, cached ~1h server-side.
 
 import { MISSPELLINGS } from './misspellings';
 
@@ -19,89 +17,103 @@ export interface MarketDeal {
   term: string; // tracked term, e.g. "Charizard"
   misspelling: string; // top typo — feeds the hunt buttons
   rawPrice: number | null; // TCGplayer market, dollars
-  gradedPrice: number | null; // not provided by this API — always null
-  priceUrl: string; // TCGplayer listing page
+  gradedPrice: number | null; // TCGdex has no graded prices — always null
+  priceUrl: string; // TCGplayer product page
   imageUrl: string | null; // card image
   live: true;
 }
 
-const API = 'https://api.pokemontcg.io/v2';
+const API = 'https://api.tcgdex.net/v2/en';
 
-interface TcgCard {
+// Iconic printing per tracked Pokémon term. All verified against the TCGdex
+// API 2026-09-12, including Mew (sv03.5 = set "151").
+const TERM_CARD_IDS: Record<string, string> = {
+  Charizard: 'base1-4', // Base Set
+  Pikachu: 'base1-58', // Base Set
+  Blastoise: 'base1-2', // Base Set
+  Venusaur: 'base1-15', // Base Set
+  Gengar: 'base3-5', // Fossil
+  Mewtwo: 'base1-10', // Base Set
+  Mew: 'sv03.5-151', // 151 — Mew ex #151
+  Umbreon: 'swsh7-95', // Evolving Skies Umbreon VMAX
+  Espeon: 'swsh7-65', // Evolving Skies Espeon VMAX
+  Sylveon: 'swsh7-75', // Evolving Skies Sylveon VMAX
+  Rayquaza: 'swsh7-111', // Evolving Skies Rayquaza VMAX
+  Lugia: 'neo1-9', // Neo Genesis
+  Eevee: 'base2-51', // Jungle
+  Gyarados: 'base1-6', // Base Set
+  Dragonite: 'base3-4', // Fossil
+  Snorlax: 'base2-11', // Jungle
+  Greninja: 'xy1-41', // XY
+  Lucario: 'dp1-6', // Diamond & Pearl
+};
+
+interface TcgdexPriceBucket {
+  marketPrice?: number;
+}
+
+interface TcgdexCard {
   id: string;
   name: string;
-  number?: string;
+  localId?: string;
   set?: { name?: string };
-  images?: { small?: string };
-  tcgplayer?: {
-    url?: string;
-    prices?: Record<string, { market?: number } | undefined>;
+  image?: string;
+  thirdParty?: { tcgplayer?: number };
+  pricing?: {
+    tcgplayer?: Record<string, TcgdexPriceBucket | undefined>;
   };
 }
 
-async function searchCards(term: string, key: string): Promise<TcgCard[]> {
-  const res = await fetch(
-    `${API}/cards?q=${encodeURIComponent(`name:${term.toLowerCase()}*`)}&pageSize=12`,
-    { headers: key ? { 'X-Api-Key': key } : {}, cache: 'no-store' },
-  );
-  if (!res.ok) throw new Error(`card lookup failed (${res.status})`);
-  const data = await res.json();
-  return Array.isArray(data?.data) ? data.data : [];
+async function fetchCard(id: string): Promise<TcgdexCard> {
+  const res = await fetch(`${API}/cards/${id}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`tcgdex ${id} -> ${res.status}`);
+  return res.json();
 }
 
-function marketOf(card: TcgCard): number | null {
-  const p = card.tcgplayer?.prices;
+function marketOf(card: TcgdexCard): number | null {
+  const p = card.pricing?.tcgplayer;
   if (!p) return null;
-  const preferred = [
-    'holofoil',
-    '1stEditionHolofoil',
-    'reverseHolofoil',
-    'normal',
-    '1stEditionNormal',
-  ];
-  for (const k of preferred) {
-    const m = p[k]?.market;
+  for (const k of ['holofoil', 'normal', 'reverse-holofoil']) {
+    const m = p[k]?.marketPrice;
     if (typeof m === 'number' && m > 0) return m;
   }
   for (const v of Object.values(p)) {
-    const m = v?.market;
+    const m = v?.marketPrice;
     if (typeof m === 'number' && m > 0) return m;
   }
   return null;
 }
 
 /**
- * Live TCGplayer market prices for every tracked Pokémon term. Picks the
- * highest-market priced match per term (usually the iconic printing) — the
- * card name, set and number are always shown so it's transparent.
+ * Live TCGplayer market prices for every tracked Pokémon term. No key needed.
+ * A term whose card can't be priced is skipped rather than failing the scan.
  */
-export async function fetchPokemonPrices(key: string): Promise<MarketDeal[]> {
+export async function fetchPokemonPrices(): Promise<MarketDeal[]> {
   const terms = MISSPELLINGS.filter((t) => t.category === 'pokemon');
   const deals: MarketDeal[] = [];
   const BATCH = 6;
   for (let i = 0; i < terms.length; i += BATCH) {
     const results = await Promise.all(
       terms.slice(i, i + BATCH).map(async (term) => {
+        const cardId = TERM_CARD_IDS[term.term];
+        if (!cardId) return null;
         try {
-          const cards = await searchCards(term.term, key);
-          const priced = cards
-            .map((c) => ({ c, m: marketOf(c) }))
-            .filter((x) => x.m !== null)
-            .sort((a, b) => (b.m ?? 0) - (a.m ?? 0));
-          if (priced.length === 0) return null;
-          const { c, m } = priced[0];
+          const c = await fetchCard(cardId);
+          const m = marketOf(c);
+          if (m === null) return null;
+          const tpId = c.thirdParty?.tcgplayer;
           return {
-            id: `ptcg-${c.id}`,
-            title: `${c.name}${c.number ? ` #${c.number}` : ''}`,
+            id: `tcgdex-${c.id}`,
+            title: `${c.name}${c.localId ? ` #${c.localId}` : ''}`,
             setName: c.set?.name ?? '',
             term: term.term,
             misspelling: term.misspellings[0] ?? term.term,
             rawPrice: m,
             gradedPrice: null,
-            priceUrl:
-              c.tcgplayer?.url ??
-              `https://www.tcgplayer.com/search/all/product?q=${encodeURIComponent(term.term)}`,
-            imageUrl: c.images?.small ?? null,
+            priceUrl: tpId
+              ? `https://www.tcgplayer.com/product/${tpId}`
+              : `https://www.tcgplayer.com/search/all/product?q=${encodeURIComponent(term.term)}`,
+            imageUrl: c.image ? `${c.image}/high.png` : null,
             live: true as const,
           };
         } catch {
@@ -111,7 +123,6 @@ export async function fetchPokemonPrices(key: string): Promise<MarketDeal[]> {
     );
     for (const d of results) if (d) deals.push(d);
   }
-  if (deals.length === 0)
-    throw new Error('no live prices returned — check the API key');
+  if (deals.length === 0) throw new Error('TCGdex lookup failed');
   return deals;
 }

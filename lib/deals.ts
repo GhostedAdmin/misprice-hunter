@@ -3,18 +3,21 @@ import type { Category } from './misspellings';
 export interface Deal {
   id: string;
   title: string; // product name, e.g. "Charizard #4"
-  setName: string; // e.g. "Pokemon Base Set"
+  setName: string; // e.g. "Base Set"
   term: string; // tracked term, e.g. "Charizard"
   misspelling: string; // top typo — feeds the hunt buttons
   category: Category;
   rawPrice: number | null; // raw/ungraded market, dollars
-  gradedPrice: number | null; // graded market, dollars
+  gradedPrice: number | null; // graded market, dollars (null when the source has none)
   priceUrl: string; // full price history link
+  imageUrl: string | null;
+  live: boolean; // false = clearly-labeled sample
 }
 
 // ---------------------------------------------------------------------------
 // DEMO DATA — clearly sample market prices so the site feels real before a
-// user adds their free PriceCharting token. Never presented as live results.
+// user adds their free API key, and for sports cards (no free sports pricing
+// API exists). Never presented as live results.
 // ---------------------------------------------------------------------------
 
 const DEMO_MARKET: Array<{
@@ -58,5 +61,7 @@ export function demoDeals(): Deal[] {
     rawPrice: s.rawPrice,
     gradedPrice: s.gradedPrice,
     priceUrl: priceUrlFor(s.category, s.term),
+    imageUrl: null,
+    live: false,
   }));
 }

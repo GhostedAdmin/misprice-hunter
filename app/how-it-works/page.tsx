@@ -13,13 +13,13 @@ const STEPS = [
   },
   {
     n: '03',
-    title: 'We scan the typos for you',
-    body: `Misprice Hunter checks ${'70+'} common misspellings across Pokémon and sports cards against eBay's live auction feed, and lines up the ones ending soonest so you can swoop in.`,
+    title: 'We price the real card for you',
+    body: `Misprice Hunter pulls live market prices — raw and graded — for 100+ tracked cards across Pokémon and sports, so you know what the correctly-spelled card is actually worth.`,
   },
   {
     n: '04',
-    title: 'You decide if it\'s worth a look',
-    body: 'A low-bid typo auction is an opportunity, not a guarantee. Check the seller feedback, zoom the photos, read the description — then bid like you mean it.',
+    title: 'You hunt the typo and compare',
+    body: 'Hit the hunt buttons to run the misspelling as a search across every marketplace. When you find one, compare the asking price against the market prices above — the gap is your opportunity. Check the seller feedback, zoom the photos, read the description — then bid like you mean it.',
   },
 ];
 
@@ -47,9 +47,9 @@ export default function HowItWorks() {
       <div className="mt-10 rounded-xl border border-amber-400/40 bg-amber-400/10 p-6">
         <h2 className="font-bold text-amber-200">The honest fine print</h2>
         <ul className="mt-2 text-sm text-amber-100/80 space-y-1.5 list-disc list-inside">
-          <li>Low bids can mean a hidden gem — or a card with issues the photos reveal.</li>
+          <li>Low asking prices can mean a hidden gem — or a card with issues the photos reveal.</li>
           <li>Some "typos" are intentional keyword spam. Read every listing.</li>
-          <li>We show auctions worth a look. We never claim a deal is verified.</li>
+          <li>We show market prices worth comparing against. We never claim a deal is verified.</li>
           <li>Set a max bid before the adrenaline hits. Future you says thanks.</li>
         </ul>
       </div>

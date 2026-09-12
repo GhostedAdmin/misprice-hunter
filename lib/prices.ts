@@ -57,7 +57,7 @@ interface TcgdexPriceBucket {
   highPrice?: number;
 }
 
-interface TcgdexCard {
+export interface TcgdexCard {
   id: string;
   name: string;
   localId?: string;
@@ -75,7 +75,12 @@ async function fetchCard(id: string): Promise<TcgdexCard> {
   return res.json();
 }
 
-function marketRangeOf(card: TcgdexCard): { market: number | null; low: number | null; high: number | null } {
+/** Single-card detail fetch, exported for the universal card search. */
+export async function fetchPokemonCard(id: string): Promise<TcgdexCard> {
+  return fetchCard(id);
+}
+
+export function marketRangeOf(card: TcgdexCard): { market: number | null; low: number | null; high: number | null } {
   const p = card.pricing?.tcgplayer;
   if (!p) return { market: null, low: null, high: null };
   let market: number | null = null;

@@ -83,8 +83,8 @@ function median(ns: number[]): number | null {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 }
 
-/** Median of recent completed auction sales: raw + PSA 10 (or best grade). */
-function extract(pricing: any): { raw: number | null; graded: number | null } {
+/** Median of recent completed auction sales: raw + PSA 10 (or best grade). Exported for on-demand card lookup. */
+export function extractPricing(pricing: any): { raw: number | null; graded: number | null } {
   const raw = median(salePrices(pricing?.raw?.records));
   let graded: number | null = null;
   const companies: any[] = pricing?.graded || [];
@@ -104,6 +104,23 @@ function extract(pricing: any): { raw: number | null; graded: number | null } {
 function pricingOf(result: any): any {
   if (!result) return null;
   return result.data || result.pricing || result;
+}
+
+/** Authenticated GET against the CardSight API. Exported for card search. */
+export async function cardsightGet(path: string): Promise<any> {
+  return cs(path, { method: 'GET' });
+}
+
+/**
+ * On-demand completed-auction medians for a single CardSight card UUID.
+ * Used by universal search — not cached (one call per lookup).
+ */
+export async function fetchSportsDetail(cardId: string): Promise<{ raw: number | null; graded: number | null }> {
+  const json = await cs(
+    `/v1/pricing/${cardId}?period=3m&listing_type=auction&limit=25`,
+    { method: 'GET' },
+  );
+  return extractPricing(pricingOf(json));
 }
 
 let priceCache: { at: number; deals: SportsDeal[] } | null = null;
@@ -134,7 +151,7 @@ export async function fetchSportsPrices(): Promise<SportsDeal[]> {
   for (let i = 0; i < SPORTS_SPECS.length; i++) {
     const spec = SPORTS_SPECS[i];
     const r = results.find((x) => String(x?.card_id) === ids[i]) || results[i];
-    const { raw, graded } = extract(pricingOf(r));
+    const { raw, graded } = extractPricing(pricingOf(r));
     if (raw === null && graded === null) continue;
     deals.push({
       id: `cardsight-${ids[i]}`,

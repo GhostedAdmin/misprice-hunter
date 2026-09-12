@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import DealCard from '@/components/DealCard';
 import MoversTicker from '@/components/MoversTicker';
+import CardSearch from '@/components/CardSearch';
 import type { Deal } from '@/lib/deals';
 
 type Filter = 'all' | 'pokemon' | 'sports';
@@ -130,28 +131,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* SEARCH */}
-        <div className="relative mb-4">
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg text-zinc-600">
-            ⌕
-          </span>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search any card — try “Charizard”, “Jordan”, or a set…"
-            aria-label="Search cards"
-            className="w-full rounded-xl border border-zinc-800 bg-[#141417] py-3 pl-11 pr-11 text-[15px] text-zinc-100 placeholder:text-zinc-600 focus:border-amber-400/60 focus:outline-none"
-          />
-          {query && (
-            <button
-              onClick={() => setQuery('')}
-              aria-label="Clear search"
-              className="absolute right-3 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full text-zinc-500 hover:text-white"
-            >
-              ✕
-            </button>
-          )}
-        </div>
+        {/* SEARCH — filters tracked cards instantly, searches every card via dropdown */}
+        <CardSearch query={query} setQuery={setQuery} />
 
         {/* FILTERS */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-2">

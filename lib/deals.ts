@@ -2,61 +2,61 @@ import type { Category } from './misspellings';
 
 export interface Deal {
   id: string;
-  title: string;
-  imageUrl: string;
-  price: number; // current bid
-  currency: string;
-  bidCount: number;
-  endTime: string; // ISO
-  listingUrl: string;
+  title: string; // product name, e.g. "Charizard #4"
+  setName: string; // e.g. "Pokemon Base Set"
+  term: string; // tracked term, e.g. "Charizard"
+  misspelling: string; // top typo — feeds the hunt buttons
   category: Category;
-  term: string; // correctly spelled term
-  misspelling: string; // the typo that surfaced it
+  rawPrice: number | null; // raw/ungraded market, dollars
+  gradedPrice: number | null; // graded market, dollars
+  priceUrl: string; // full price history link
 }
 
 // ---------------------------------------------------------------------------
-// DEMO DATA — clearly fake sample listings so the site feels real before a
-// user adds their free eBay API key. Never presented as live results.
+// DEMO DATA — clearly sample market prices so the site feels real before a
+// user adds their free PriceCharting token. Never presented as live results.
 // ---------------------------------------------------------------------------
-interface DemoSeed {
+
+const DEMO_MARKET: Array<{
   title: string;
-  price: number;
-  bidCount: number;
-  endsInMinutes: number;
-  category: Category;
+  setName: string;
   term: string;
   misspelling: string;
-  seed: string;
-}
-
-const DEMO_SEEDS: DemoSeed[] = [
-  { title: 'Charzard 1st Edition Base Set Holo — LP, sharp corners', price: 41.0, bidCount: 9, endsInMinutes: 134, category: 'pokemon', term: 'Charizard', misspelling: 'Charzard', seed: 'mh-char' },
-  { title: 'Pikacu Illustrator Style Promo — sealed in toploader', price: 12.5, bidCount: 4, endsInMinutes: 47, category: 'pokemon', term: 'Pikachu', misspelling: 'Pikacu', seed: 'mh-pika' },
-  { title: 'Blastois Base Set Holo 2/102 — light play', price: 28.0, bidCount: 6, endsInMinutes: 322, category: 'pokemon', term: 'Blastoise', misspelling: 'Blastois', seed: 'mh-blast' },
-  { title: 'Venasaur 15/102 Base Set Holo — clean front', price: 19.99, bidCount: 3, endsInMinutes: 95, category: 'pokemon', term: 'Venusaur', misspelling: 'Venasaur', seed: 'mh-ven' },
-  { title: 'Mewtow EX Holo — near mint', price: 8.5, bidCount: 2, endsInMinutes: 410, category: 'pokemon', term: 'Mewtwo', misspelling: 'Mewtow', seed: 'mh-mew2' },
-  { title: 'Genger Evolutions Reverse Holo lot (x4)', price: 5.25, bidCount: 1, endsInMinutes: 26, category: 'pokemon', term: 'Gengar', misspelling: 'Genger', seed: 'mh-geng' },
-  { title: 'Micheal Jordan 1986 Fleer #57 — reprint? read description', price: 15.5, bidCount: 7, endsInMinutes: 188, category: 'sports', term: 'Michael Jordan', misspelling: 'Micheal Jordan', seed: 'mh-mj' },
-  { title: 'Leborn James Prizm Silver Prizm — rookie year card', price: 63.0, bidCount: 11, endsInMinutes: 74, category: 'sports', term: 'LeBron James', misspelling: 'Leborn James', seed: 'mh-lebron' },
-  { title: 'Luka Donic Optic Holo Rated Rookie — PSA ready', price: 22.0, bidCount: 5, endsInMinutes: 256, category: 'sports', term: 'Luka Doncic', misspelling: 'Luka Donic', seed: 'mh-luka' },
-  { title: 'Tom Braddy Contenders Rookie Ticket auto — ungraded', price: 310.0, bidCount: 14, endsInMinutes: 59, category: 'sports', term: 'Tom Brady', misspelling: 'Tom Braddy', seed: 'mh-brady' },
-  { title: 'Koby Bryant Topps Chrome Refractor #138', price: 88.0, bidCount: 8, endsInMinutes: 540, category: 'sports', term: 'Kobe Bryant', misspelling: 'Koby Bryant', seed: 'mh-kobe' },
-  { title: 'Shohei Otani 2018 Topps Rookie lot (x6) — NM', price: 34.75, bidCount: 6, endsInMinutes: 152, category: 'sports', term: 'Shohei Ohtani', misspelling: 'Shohei Otani', seed: 'mh-ohtani' },
+  category: Category;
+  rawPrice: number;
+  gradedPrice: number;
+}> = [
+  { title: 'Charizard #4', setName: 'Pokemon Base Set', term: 'Charizard', misspelling: 'Charzard', category: 'pokemon', rawPrice: 399.99, gradedPrice: 2499.99 },
+  { title: 'Pikachu #58', setName: 'Pokemon Base Set', term: 'Pikachu', misspelling: 'Pikacu', category: 'pokemon', rawPrice: 8.5, gradedPrice: 64.99 },
+  { title: 'Blastoise #2', setName: 'Pokemon Base Set', term: 'Blastoise', misspelling: 'Blastois', category: 'pokemon', rawPrice: 189.99, gradedPrice: 1129.99 },
+  { title: 'Venusaur #15', setName: 'Pokemon Base Set', term: 'Venusaur', misspelling: 'Venasaur', category: 'pokemon', rawPrice: 149.99, gradedPrice: 899.99 },
+  { title: 'Mewtwo #10', setName: 'Pokemon Base Set', term: 'Mewtwo', misspelling: 'Mewtow', category: 'pokemon', rawPrice: 42.0, gradedPrice: 329.99 },
+  { title: 'Gengar #5', setName: 'Pokemon Fossil', term: 'Gengar', misspelling: 'Genger', category: 'pokemon', rawPrice: 64.99, gradedPrice: 419.99 },
+  { title: 'Michael Jordan #57', setName: 'Basketball Cards 1986 Fleer', term: 'Michael Jordan', misspelling: 'Micheal Jordan', category: 'sports', rawPrice: 2255.0, gradedPrice: 6022.95 },
+  { title: 'LeBron James #221', setName: 'Basketball Cards 2003 Topps Chrome', term: 'LeBron James', misspelling: 'Leborn James', category: 'sports', rawPrice: 899.99, gradedPrice: 3499.99 },
+  { title: 'Luka Doncic #280', setName: 'Basketball Cards 2018 Panini Prizm', term: 'Luka Doncic', misspelling: 'Luka Donic', category: 'sports', rawPrice: 219.99, gradedPrice: 1049.99 },
+  { title: 'Tom Brady #144', setName: 'Football Cards 2000 Playoff Contenders', term: 'Tom Brady', misspelling: 'Tom Braddy', category: 'sports', rawPrice: 1899.99, gradedPrice: 8999.99 },
+  { title: 'Kobe Bryant #138', setName: 'Basketball Cards 1996 Topps Chrome', term: 'Kobe Bryant', misspelling: 'Koby Bryant', category: 'sports', rawPrice: 749.99, gradedPrice: 4999.99 },
+  { title: 'Shohei Ohtani #700', setName: 'Baseball Cards 2018 Topps Update', term: 'Shohei Ohtani', misspelling: 'Shohei Otani', category: 'sports', rawPrice: 34.75, gradedPrice: 219.99 },
 ];
 
+function priceUrlFor(category: Category, term: string): string {
+  const q = encodeURIComponent(term);
+  return category === 'pokemon'
+    ? `https://www.pricecharting.com/search?query=${q}`
+    : `https://www.sportscardspro.com/search-products?q=${q}&type=prices`;
+}
+
 export function demoDeals(): Deal[] {
-  const now = Date.now();
-  return DEMO_SEEDS.map((s, i) => ({
+  return DEMO_MARKET.map((s, i) => ({
     id: `demo-${i}`,
     title: s.title,
-    imageUrl: `https://picsum.photos/seed/${s.seed}/400/300`,
-    price: s.price,
-    currency: 'USD',
-    bidCount: s.bidCount,
-    endTime: new Date(now + s.endsInMinutes * 60_000).toISOString(),
-    listingUrl: 'https://www.ebay.com/',
-    category: s.category,
+    setName: s.setName,
     term: s.term,
     misspelling: s.misspelling,
+    category: s.category,
+    rawPrice: s.rawPrice,
+    gradedPrice: s.gradedPrice,
+    priceUrl: priceUrlFor(s.category, s.term),
   }));
 }

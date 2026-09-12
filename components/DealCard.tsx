@@ -50,7 +50,7 @@ export default function DealCard({ deal }: { deal: Deal }) {
           <div className="rounded-lg border border-zinc-800 bg-[#0b0b0d] p-3">
             <p className="text-[11px] uppercase tracking-wide text-zinc-500">Market price</p>
             <p className="text-xl font-extrabold text-amber-400 tabular-nums">{money(deal.rawPrice)}</p>
-            <p className="text-[10px] text-zinc-600">{deal.live ? 'TCGplayer · live' : 'sample'}</p>
+            <p className="text-[10px] text-zinc-600">{deal.live ? `${deal.source} · live` : 'sample'}</p>
           </div>
           <div className="rounded-lg border border-zinc-800 bg-[#0b0b0d] p-3">
             <p className="text-[11px] uppercase tracking-wide text-zinc-500">Graded market</p>

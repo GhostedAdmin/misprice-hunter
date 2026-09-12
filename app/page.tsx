@@ -8,7 +8,7 @@ import type { Deal } from '@/lib/deals';
 type Filter = 'all' | 'pokemon' | 'sports';
 type Sort = 'raw' | 'graded' | 'name';
 
-const PC_TOKEN_KEY = 'mh_pc_token';
+const PTCG_KEY = 'mh_ptcg_key';
 
 interface ScanResponse {
   demo: boolean;
@@ -27,19 +27,19 @@ export default function Home() {
   const [filter, setFilter] = useState<Filter>('all');
   const [sort, setSort] = useState<Sort>('graded');
   const [showSettings, setShowSettings] = useState(false);
-  const [pcToken, setPcToken] = useState('');
+  const [ptcgKey, setPtcgKey] = useState('');
   const [hasToken, setHasToken] = useState(false);
 
   useEffect(() => {
-    const t = localStorage.getItem(PC_TOKEN_KEY) ?? '';
-    setPcToken(t);
+    const t = localStorage.getItem(PTCG_KEY) ?? '';
+    setPtcgKey(t);
     setHasToken(Boolean(t));
   }, []);
 
   const fetchDeals = useCallback(async (refresh = false) => {
-    const stored = localStorage.getItem(PC_TOKEN_KEY) ?? '';
+    const stored = localStorage.getItem(PTCG_KEY) ?? '';
     const headers: Record<string, string> = {};
-    if (stored) headers['x-pc-token'] = stored;
+    if (stored) headers['x-ptcg-key'] = stored;
     const res = await fetch(`/api/scan${refresh ? '?refresh=1' : ''}`, { headers });
     const json: ScanResponse = await res.json();
     setData(json);
@@ -61,15 +61,15 @@ export default function Home() {
   };
 
   const saveToken = () => {
-    localStorage.setItem(PC_TOKEN_KEY, pcToken.trim());
-    setHasToken(Boolean(pcToken.trim()));
+    localStorage.setItem(PTCG_KEY, ptcgKey.trim());
+    setHasToken(Boolean(ptcgKey.trim()));
     setShowSettings(false);
     onRefresh();
   };
 
   const clearToken = () => {
-    localStorage.removeItem(PC_TOKEN_KEY);
-    setPcToken('');
+    localStorage.removeItem(PTCG_KEY);
+    setPtcgKey('');
     setHasToken(false);
     onRefresh();
   };
@@ -102,8 +102,9 @@ export default function Home() {
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-zinc-400 text-base sm:text-lg">
             Misspelled listings get fewer eyeballs — and lower final bids. Misprice Hunter
-            pulls live market prices for {typoCount}+ tracked cards across Pokémon and sports,
-            so you know what the correctly-spelled card is worth before you hunt the typo.
+            pulls live TCGplayer market prices for {typoCount}+ tracked Pokémon cards, so you
+            know what the correctly-spelled card is worth before you hunt the typo across
+            every marketplace.
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <button
@@ -117,12 +118,12 @@ export default function Home() {
               onClick={() => setShowSettings(true)}
               className="rounded-lg border border-zinc-700 px-6 py-3 font-semibold text-zinc-200 hover:border-amber-400/60 hover:text-amber-300 transition-colors"
             >
-              {hasToken ? '✓ Price token connected' : 'Connect free price token'}
+              {hasToken ? '✓ Price key connected' : 'Connect free price key'}
             </button>
           </div>
           <p className="mt-4 text-xs text-zinc-600">
             {data?.demo
-              ? 'Showing demo prices — connect your free PriceCharting token for live market data.'
+              ? 'Showing sample prices — connect your free Pokémon TCG key for live market data.'
               : `Live market prices · updated ${data?.updatedAt ? new Date(data.updatedAt).toLocaleTimeString() : '—'}`}
           </p>
         </div>
@@ -145,8 +146,8 @@ export default function Home() {
         {data?.demo && (
           <div className="mb-6 rounded-xl border border-amber-400/40 bg-amber-400/10 p-4 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
             <p className="text-sm text-amber-200">
-              <span className="font-bold">Demo prices.</span> These are sample market values so you can see
-              the product. Add your free PriceCharting token for live market data — takes 2 minutes.
+              <span className="font-bold">Sample prices.</span> These are sample market values so you can see
+              the product. Add your free Pokémon TCG key for live Pokémon market data — takes 2 minutes.
             </p>
             <button
               onClick={() => setShowSettings(true)}
@@ -245,26 +246,26 @@ export default function Home() {
             className="w-full max-w-md rounded-xl border border-zinc-700 bg-[#141417] p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-xl font-bold">Connect your free price token</h2>
+            <h2 className="text-xl font-bold">Connect your free price key</h2>
             <ol className="mt-3 text-sm text-zinc-400 space-y-1.5 list-decimal list-inside">
-              <li>Go to <span className="text-zinc-200 font-mono">pricecharting.com/api</span> and sign in</li>
-              <li>Copy your API token (the same token works for sports cards via SportsCardsPro)</li>
+              <li>Go to <span className="text-zinc-200 font-mono">dev.pokemontcg.io</span> and sign up (free)</li>
+              <li>Copy your API key from the dashboard</li>
               <li>Paste it below — it stays in your browser only</li>
             </ol>
             <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
-              PriceCharting API token
+              Pokémon TCG API key
             </label>
             <input
-              value={pcToken}
-              onChange={(e) => setPcToken(e.target.value)}
+              value={ptcgKey}
+              onChange={(e) => setPtcgKey(e.target.value)}
               type="password"
-              placeholder="40-character token"
+              placeholder="e.g. 12345678-1234-1234-1234-123456789012"
               className="mt-1 w-full rounded-lg border border-zinc-700 bg-[#0b0b0d] px-3 py-2.5 font-mono text-sm"
             />
             <div className="mt-5 flex gap-3">
               <button
                 onClick={saveToken}
-                disabled={!pcToken.trim()}
+                disabled={!ptcgKey.trim()}
                 className="flex-1 rounded-lg bg-amber-400 px-4 py-2.5 font-bold text-black hover:bg-amber-300 disabled:opacity-40"
               >
                 Save & go live
@@ -279,7 +280,7 @@ export default function Home() {
               )}
             </div>
             <p className="mt-3 text-[11px] text-zinc-600">
-              The token is stored in this browser's localStorage and sent only to this site's API route to fetch market prices. Never shared.
+              The token is stored in this browser's localStorage and sent only to this site's API route to fetch live Pokémon market prices. Never shared.
             </p>
           </div>
         </div>

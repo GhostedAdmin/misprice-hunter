@@ -10,6 +10,7 @@ type Sort = 'raw' | 'graded' | 'name';
 
 interface ScanResponse {
   demo: boolean;
+  sportsLive?: boolean;
   updatedAt: string;
   cached?: boolean;
   error?: string;
@@ -96,7 +97,7 @@ export default function Home() {
           <p className="mt-4 text-xs text-zinc-600">
             {data?.demo
               ? 'Showing sample prices — live data will return automatically.'
-              : `Live TCGplayer market prices · no key needed · updated ${data?.updatedAt ? new Date(data.updatedAt).toLocaleTimeString() : '—'}`}
+              : `Live market prices${data?.sportsLive ? ' (Pokémon + sports)' : ' (Pokémon · sports samples)'} · updated ${data?.updatedAt ? new Date(data.updatedAt).toLocaleTimeString() : '—'}`}
           </p>
         </div>
         {/* typo ticker */}

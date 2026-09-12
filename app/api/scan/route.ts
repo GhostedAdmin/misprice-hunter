@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { demoDeals, type Deal } from '@/lib/deals';
-import { fetchMarketPrices, type MarketDeal } from '@/lib/prices';
+import { fetchPokemonPrices } from '@/lib/prices';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -11,26 +11,12 @@ const CACHE_TTL_MS = 60 * 60 * 1000;
 let cache: { at: number; deals: Deal[]; demo: boolean; live: boolean } | null =
   null;
 
-function toDeal(m: MarketDeal): Deal {
-  return {
-    id: m.id,
-    title: m.title,
-    setName: m.setName,
-    term: m.term,
-    misspelling: m.misspelling,
-    category: m.category,
-    rawPrice: m.rawPrice,
-    gradedPrice: m.gradedPrice,
-    priceUrl: m.priceUrl,
-  };
-}
-
 async function handle(req: NextRequest) {
   const url = new URL(req.url);
   const force = url.searchParams.get('refresh') === '1';
-  const token =
-    req.headers.get('x-pc-token') || process.env.PRICECHARTING_TOKEN || '';
-  const live = Boolean(token);
+  const key =
+    req.headers.get('x-ptcg-key') || process.env.POKEMONTCG_API_KEY || '';
+  const live = Boolean(key);
 
   if (
     !force &&
@@ -46,6 +32,7 @@ async function handle(req: NextRequest) {
     });
   }
 
+  // No key → everything is labeled demo data.
   if (!live) {
     const deals = demoDeals();
     cache = { at: Date.now(), deals, demo: true, live: false };
@@ -58,8 +45,14 @@ async function handle(req: NextRequest) {
   }
 
   try {
-    const market = await fetchMarketPrices(token);
-    const deals = market.map(toDeal);
+    // Pokémon goes live via the free Pokémon TCG API. Sports has no free
+    // pricing API, so sports cards stay as clearly-labeled samples.
+    const pokemon = await fetchPokemonPrices(key);
+    const sports = demoDeals().filter((d) => d.category === 'sports');
+    const deals: Deal[] = [
+      ...pokemon.map((p) => ({ ...p, category: 'pokemon' as const })),
+      ...sports,
+    ];
     cache = { at: Date.now(), deals, demo: false, live: true };
     return NextResponse.json({
       demo: false,

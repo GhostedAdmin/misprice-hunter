@@ -112,9 +112,11 @@ export default function Home() {
             </a>
           </div>
           <p className="mt-4 text-xs text-zinc-600">
-            {data?.demo
-              ? 'Showing sample prices — live data will return automatically.'
-              : `Live market prices${data?.sportsLive ? ' (Pokémon + sports)' : ' (Pokémon · sports samples)'} · updated ${data?.updatedAt ? new Date(data.updatedAt).toLocaleTimeString() : '—'}`}
+            {!data
+              ? 'Loading live market prices…'
+              : data.demo
+                ? 'Showing sample prices — live data will return automatically.'
+                : `Live market prices${data.sportsLive ? ' (Pokémon + sports)' : ' (Pokémon · sports samples)'} · updated ${data.updatedAt ? new Date(data.updatedAt).toLocaleTimeString() : '—'}`}
           </p>
         </div>
         {/* market movers ticker */}

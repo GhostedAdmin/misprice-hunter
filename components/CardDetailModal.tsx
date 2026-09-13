@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import HuntButtons from './HuntButtons';
+import EbayListings from './EbayListings';
 import type { Deal } from '@/lib/deals';
 
 export type SearchPick =
@@ -191,6 +192,8 @@ export default function CardDetailModal({
               <div className="mt-4">
                 <HuntButtons query={deal.term} />
               </div>
+
+              <EbayListings query={deal.term} />
 
               <a
                 href={deal.priceUrl}

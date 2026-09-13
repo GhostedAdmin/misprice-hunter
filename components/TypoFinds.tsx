@@ -18,6 +18,7 @@ export interface TypoFind {
   term: string; // the correctly-spelled card, e.g. "Charizard"
   category: 'pokemon' | 'sports';
   marketPrice?: number | null; // our tracked market price for the card, when known
+  endsInMinutes?: number | null; // auction countdown in minutes, when known
 }
 
 interface FindsFile {
@@ -39,6 +40,20 @@ function timeAgo(iso: string): string {
   if (hrs < 48) return `${hrs}h ago`;
   return `${Math.floor(hrs / 24)}d ago`;
 }
+
+// Auction countdown → minutes. The hunter writes endsInMinutes; this parses
+// the display string as a fallback ("2h 14m", "3d 5h", "55m").
+function endsIn(f: TypoFind): number | null {
+  if (f.endsInMinutes != null) return f.endsInMinutes;
+  if (!f.timeLeft) return null;
+  const d = /(\d+)\s*d/i.exec(f.timeLeft);
+  const h = /(\d+)\s*h/i.exec(f.timeLeft);
+  const m = /(\d+)\s*m(?!o)/i.exec(f.timeLeft);
+  if (!d && !h && !m) return null;
+  return (d ? parseInt(d[1]) * 1440 : 0) + (h ? parseInt(h[1]) * 60 : 0) + (m ? parseInt(m[1]) : 0);
+}
+
+import FlipCalculator from '@/components/FlipCalculator';
 
 function FindCard({ find }: { find: TypoFind }) {
   const discount =
@@ -115,6 +130,11 @@ function FindCard({ find }: { find: TypoFind }) {
           </p>
         ) : null}
 
+        {/* stopPropagation: the card is a link — calculator clicks must not navigate */}
+        <div onClick={(e) => e.preventDefault()}>
+          <FlipCalculator buyPrice={find.price} sellPrice={find.marketPrice ?? undefined} />
+        </div>
+
         <span className="mt-auto pt-2 inline-block rounded-lg bg-amber-400 px-4 py-2 text-center text-sm font-bold text-black hover:bg-amber-300 transition-colors">
           View live listing ↗
         </span>
@@ -125,6 +145,7 @@ function FindCard({ find }: { find: TypoFind }) {
 
 export default function TypoFinds() {
   const [data, setData] = useState<FindsFile | null>(null);
+  const [endingSoon, setEndingSoon] = useState(false);
 
   useEffect(() => {
     fetch('/typo-finds.json')
@@ -134,6 +155,20 @@ export default function TypoFinds() {
   }, []);
 
   if (!data) return null;
+
+  let finds = data.finds;
+  if (endingSoon) {
+    finds = finds
+      .filter((f) => {
+        const e = endsIn(f);
+        return e !== null && e <= 60;
+      })
+      .sort((a, b) => (endsIn(a) ?? Infinity) - (endsIn(b) ?? Infinity));
+  }
+  const soonCount = data.finds.filter((f) => {
+    const e = endsIn(f);
+    return e !== null && e <= 60;
+  }).length;
 
   return (
     <section className="mb-10">
@@ -148,20 +183,46 @@ export default function TypoFinds() {
             <span className="text-zinc-600"> · new hunt every 8 hours</span>
           </p>
         </div>
+        {soonCount > 0 && (
+          <button
+            onClick={() => setEndingSoon((v) => !v)}
+            className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
+              endingSoon
+                ? 'bg-red-500 text-white'
+                : 'border border-red-500/50 text-red-400 hover:bg-red-500/10'
+            }`}
+          >
+            ⚡ Ending soon ({soonCount})
+          </button>
+        )}
       </div>
 
-      {data.finds.length === 0 ? (
+      {finds.length === 0 ? (
         <div className="rounded-xl border border-zinc-800 bg-[#141417] p-10 text-center">
-          <p className="text-3xl mb-3">🔍</p>
-          <p className="text-zinc-400 font-semibold">The hunter is out scanning eBay…</p>
-          <p className="mt-1 text-sm text-zinc-600">
-            Fresh typo listings land here after the next hunt. Meanwhile, the hunt buttons on
-            every card below run the typos yourself.
-          </p>
+          {endingSoon ? (
+            <>
+              <p className="text-3xl mb-3">⏳</p>
+              <p className="text-zinc-400 font-semibold">Nothing ends within the hour right now.</p>
+              <p className="mt-1 text-sm text-zinc-600">
+                <button onClick={() => setEndingSoon(false)} className="text-amber-400 font-semibold hover:text-amber-300">
+                  Show all finds →
+                </button>
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-3xl mb-3">🔍</p>
+              <p className="text-zinc-400 font-semibold">The hunter is out scanning eBay…</p>
+              <p className="mt-1 text-sm text-zinc-600">
+                Fresh typo listings land here after the next hunt. Meanwhile, the hunt buttons on
+                every card below run the typos yourself.
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {data.finds.map((f) => (
+          {finds.map((f) => (
             <FindCard key={f.id} find={f} />
           ))}
         </div>

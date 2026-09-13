@@ -1,6 +1,7 @@
 'use client';
 
 import HuntButtons from '@/components/HuntButtons';
+import FlipCalculator from '@/components/FlipCalculator';
 import type { Deal } from '@/lib/deals';
 
 function money(v: number | null): string {
@@ -87,6 +88,10 @@ export default function DealCard({ deal }: { deal: Deal }) {
 
         <div className="pt-1">
           <HuntButtons query={deal.misspelling} />
+        </div>
+
+        <div className="pt-1">
+          <FlipCalculator sellPrice={deal.rawPrice ?? deal.gradedPrice ?? undefined} />
         </div>
 
         <div className="mt-auto pt-2">

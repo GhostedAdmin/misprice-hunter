@@ -39,6 +39,7 @@ clickable listings for visitors who don't want to run the searches themselves.
          "listingType": "auction",
          "bids": 3,
          "timeLeft": "2h 14m",
+         "endsInMinutes": 134,
          "imageUrl": "https://i.ebayimg.com/...",
          "itemUrl": "https://www.ebay.com/itm/388912345678",
          "typo": "Charzard",
@@ -50,14 +51,29 @@ clickable listings for visitors who don't want to run the searches themselves.
    }
    ```
    `listingType` is `"auction"` or `"buyitnow"` (omit `bids`/`timeLeft` for BIN).
+   `endsInMinutes` is the auction countdown as a number (for the "ending soon"
+   filter); omit it for Buy It Now listings.
 7. **If the hunt comes back empty** (bot wall, CAPTCHA, eBay hiccup): DO NOT
    overwrite with an empty file. Keep the previous `typo-finds.json` untouched
    and end the run — stale finds with an "updated Xh ago" label beat no finds.
-8. **Commit + push** to `main` (GitHub REST git-data API via the `github`
+8. **Maintain the hall of fame** — read `public/hall-of-fame.json`
+   (`{ current, past }`). Compute the discount of each new find as
+   `(1 - price / marketPrice) * 100` (only when marketPrice is known and the
+   find is a plausible match). Determine the current week (Monday, ISO date).
+   - If the week's `current` is null or belongs to an older week: move the old
+     `current` into `past` (if any), and crown the new week's best find as
+     `current` (needs ≥40% discount to be crowned; otherwise leave null).
+   - If `current` is this week's and a new find beats its `discountPct`:
+     replace `current` with the new find (keep the old one out — only the
+     weekly champ is stored).
+   - Keep `past` to the last 8 entries.
+   - Entry shape: `{ weekStart, title, imageUrl, itemUrl, price, marketPrice,
+     discountPct (rounded), typo, term, foundAt }`.
+9. **Commit + push** to `main` (GitHub REST git-data API via the `github`
    skill's `bin/github-api` — git-over-HTTPS does not work). Vercel
    auto-redeploys on push.
-9. **Verify** — fetch `https://misprice-hunter.vercel.app/typo-finds.json`
-   after the deploy and confirm `updatedAt` moved.
+10. **Verify** — fetch `https://misprice-hunter.vercel.app/typo-finds.json`
+    after the deploy and confirm `updatedAt` moved.
 
 ## Rules
 

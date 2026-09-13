@@ -5,6 +5,8 @@ import DealCard from '@/components/DealCard';
 import MoversTicker from '@/components/MoversTicker';
 import CardSearch from '@/components/CardSearch';
 import TypoFinds from '@/components/TypoFinds';
+import TypoGenerator from '@/components/TypoGenerator';
+import HallOfFame from '@/components/HallOfFame';
 import type { Deal } from '@/lib/deals';
 
 type Filter = 'all' | 'pokemon' | 'sports';
@@ -173,6 +175,9 @@ export default function Home() {
         {/* PRE-HUNTED TYPO FINDS — refreshed every 8 hours by the typo hunter */}
         {!query.trim() && <TypoFinds />}
 
+        {/* STEAL HALL OF FAME — biggest weekly discount */}
+        {!query.trim() && <HallOfFame />}
+
         {/* GRID */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -201,6 +206,9 @@ export default function Home() {
             ))}
           </div>
         )}
+
+        {/* TYPO GENERATOR — hunt any card name */}
+        <TypoGenerator />
 
         {/* HUNT MANUALLY */}
         <section className="mt-10 rounded-xl border border-zinc-800 bg-[#141417] p-6">

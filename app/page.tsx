@@ -238,6 +238,30 @@ export default function Home() {
           Market prices are a guide, not a guarantee — always check the seller, the photos, and
           the description before you bid on a misspelled listing.
         </p>
+
+        {/* BASEMINT VAULT SOCIALS */}
+        <section className="mt-10 rounded-xl border border-amber-400/30 bg-[#141417] p-6 text-center">
+          <h2 className="text-lg font-bold">
+            🏦 Follow the <span className="text-amber-400">Basemint Vault</span>
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-400 max-w-xl mx-auto">
+            Daily grail sales, record-breakers, and market movers — the cards behind the prices
+            on this page, posted every day.
+          </p>
+          <a
+            href="https://www.instagram.com/thebasemintvault"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-amber-400 px-6 py-3 text-sm font-bold text-black hover:bg-amber-300 transition-colors"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+            </svg>
+            @thebasemintvault on Instagram
+          </a>
+        </section>
       </div>
     </div>
   );

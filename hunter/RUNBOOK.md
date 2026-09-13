@@ -11,18 +11,27 @@ clickable listings for visitors who don't want to run the searches themselves.
    (~14 high-value ones; kept small so a run finishes reliably).
 2. **Hunt** — for each entry, open the eBay search in a real browser:
    `https://www.ebay.com/sch/i.html?_nkw=<typo>&LH_Auction=1&_sop=1`
-   (auctions, ending soonest — that's where typo deals live). Also worth one
-   pass with `&LH_BIN=1&_sop=15` (cheapest Buy It Now) for the top 4-5 terms
-   if time allows.
-3. **Extract** — from each search, take the top ~6 results: listing title,
-   price, bid count, time left, thumbnail URL, and the item URL
+   (auctions, ending soonest — that's where typo deals live). **Critical:**
+   eBay auto-corrects most typo searches to the proper spelling. On the
+   results page, click the **"Search instead for \<typo\>"** link to force
+   the literal misspelled search, and extract ONLY from that literal result
+   set. Listings from the auto-corrected set are correctly-spelled items any
+   normal search would find — they have no typo edge and must never be
+   published as typo finds.
+3. **Extract** — from each literal search, take the top ~6 results: listing
+   title, price, bid count, time left, thumbnail URL, and the item URL
    (`https://www.ebay.com/itm/<itemId>`).
 4. **Filter honestly** — keep a listing only if:
+   - **the title genuinely contains the misspelling** (this is the hard
+     requirement — a typo find invisible to normal search is the product's
+     whole point),
    - the title plausibly names the intended card (not accessories, lots of
      junk, or a different player/character),
    - the price is a real number (skip "price on request" / broken parses),
    - it's not an obvious scam (stock photos only + $1 Buy It Now, etc.).
    - Dedupe by eBay item ID. Cap the file at ~18 finds, best first.
+   - True misspellings are rare — a run that yields 2-4 genuine finds is a
+     GOOD run. Never pad the file with auto-corrected listings.
 5. **Attach market context** — fetch `https://misprice-hunter.vercel.app/api/scan`,
    map `Deal.term → Deal.rawPrice`, and set `marketPrice` on each find whose
    term matches. Never invent a market price: leave it null when unknown.

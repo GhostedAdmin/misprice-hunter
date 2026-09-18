@@ -47,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-zinc-500 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
             <p>
               Misprice Hunter is an independent tool. Not affiliated with or endorsed by eBay Inc.
+              As an Amazon Associate we earn from qualifying purchases.
             </p>
             <p className="text-zinc-600">
               Auctions are "worth a look" — always verify the listing before bidding.

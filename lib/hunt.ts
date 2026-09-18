@@ -71,4 +71,10 @@ export const HUNT_AVENUES: HuntAvenue[] = [
     buildUrl: (q) =>
       `https://www.whatnot.com/search?query=${encodeURIComponent(q)}`,
   },
+  {
+    id: 'amazon',
+    label: 'Amazon',
+    buildUrl: (q) =>
+      `https://www.amazon.com/s?k=${encodeURIComponent(q)}&tag=basementvault-20`,
+  },
 ];

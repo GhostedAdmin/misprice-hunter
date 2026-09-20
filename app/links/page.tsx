@@ -31,14 +31,14 @@ const LINKS: VaultLink[] = [
     sub: "Rip play-money packs, chase grails, vault your hits",
   },
   {
-    href: "https://deadstock0.gumroad.com/l/basemint-vault-buy-sheet-01",
+    href: "https://thebasemintvault.gumroad.com/l/basemint-vault-buy-sheet-01",
     icon: "💰",
     title: "Weekly Buy Sheet",
     sub: "Buy / Hold / Skip verdicts with real flip math — $19",
     badge: "$19",
   },
   {
-    href: "https://deadstock0.gumroad.com/l/basemint-vault-market-report",
+    href: "https://thebasemintvault.gumroad.com/l/basemint-vault-market-report",
     icon: "📊",
     title: "Monthly Market Report",
     sub: "The movers, the records, what's next — $9/mo",

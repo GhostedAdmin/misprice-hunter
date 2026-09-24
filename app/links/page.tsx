@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import CrownCardsBanner from "@/components/CrownCardsBanner";
 
 export const metadata: Metadata = {
   title: "Basemint Vault — Links",
@@ -74,6 +75,11 @@ export default function LinksPage() {
           <p className="mt-1 text-sm text-zinc-400">
             Card deals, grail sales &amp; the pack game
           </p>
+        </div>
+
+        {/* CROWNCARDS PARTNER BANNER */}
+        <div className="mt-8">
+          <CrownCardsBanner />
         </div>
 
         {/* Links */}

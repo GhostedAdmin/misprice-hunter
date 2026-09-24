@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import DealCard from '@/components/DealCard';
+import CrownCardsBanner from '@/components/CrownCardsBanner';
 import MoversTicker from '@/components/MoversTicker';
 import CardSearch from '@/components/CardSearch';
 import TypoFinds from '@/components/TypoFinds';
@@ -124,6 +125,11 @@ export default function Home() {
           <MoversTicker deals={data.deals} live={!data.demo} />
         )}
       </section>
+
+      {/* CROWNCARDS PARTNER BANNER */}
+      <div className="mx-auto max-w-6xl px-4 pt-8">
+        <CrownCardsBanner />
+      </div>
 
       <div className="mx-auto max-w-6xl px-4 py-8">
         {/* DEMO / ERROR BANNERS */}

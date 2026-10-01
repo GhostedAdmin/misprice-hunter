@@ -18,18 +18,19 @@ type VaultLink = {
 
 const LINKS: VaultLink[] = [
   {
+    href: "https://vault-share-xi.vercel.app",
+    icon: "🃏",
+    title: "The Vault",
+    sub: "Rip play-money packs, chase grails, vault your hits",
+    badge: "Free to play",
+    featured: true,
+  },
+  {
     href: "https://misprice-hunter.vercel.app/",
     icon: "🎯",
     title: "Misprice Hunter",
     sub: "Typo'd eBay auctions, TCGplayer, Mercari & more — the deal scanner",
     badge: "Flagship",
-    featured: true,
-  },
-  {
-    href: "https://vault-share-xi.vercel.app",
-    icon: "🃏",
-    title: "The Vault",
-    sub: "Rip play-money packs, chase grails, vault your hits",
   },
   {
     href: "https://thebasemintvault.gumroad.com/l/basemint-vault-buy-sheet-01",

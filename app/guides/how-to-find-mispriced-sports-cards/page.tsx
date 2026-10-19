@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { GuideShell, H2, Callout } from '../guide-components';
 
 export const metadata: Metadata = {
-  title: 'How to Find Mispriced Sports Cards (Jordan, Brady, Mahomes & More) | Misprice Hunter',
+  title: 'How to Find Mispriced Sports Cards (Jordan, Brady, Mahomes & More)',
   description:
     'Mispriced sports cards hide behind misspelled names — Micheal Jordan, Leborn James, Tom Braddy. How to hunt the typo, check sold comps, and avoid overpaying.',
   alternates: { canonical: '/guides/how-to-find-mispriced-sports-cards' },

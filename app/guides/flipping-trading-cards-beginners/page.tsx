@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { GuideShell, H2, Aff, Fine, Callout } from '../guide-components';
 
 export const metadata: Metadata = {
-  title: "The Beginner's Guide to Flipping Trading Cards for Profit | Misprice Hunter",
+  title: "The Beginner's Guide to Flipping Trading Cards for Profit",
   description:
     'How to flip trading cards for profit: where to source deals, when grading makes sense, the real eBay fee math, and honest expectations for beginners.',
   alternates: { canonical: '/guides/flipping-trading-cards-beginners' },

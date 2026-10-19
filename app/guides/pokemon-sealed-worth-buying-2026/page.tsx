@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { GuideShell, H2, Aff, Fine, Callout } from '../guide-components';
 
 export const metadata: Metadata = {
-  title: 'Pokémon TCG Sealed Products Actually Worth Buying at Retail in 2026 | Misprice Hunter',
+  title: 'Pokémon TCG Sealed Products Actually Worth Buying at Retail in 2026',
   description:
     'Retail discipline is everything in 2026. Which Pokémon sealed products hold value at MSRP, which to never chase on secondary, and the traps burning buyers now.',
   alternates: { canonical: '/guides/pokemon-sealed-worth-buying-2026' },

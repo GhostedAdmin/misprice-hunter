@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { GuideShell, H2, Callout } from '../guide-components';
 
 export const metadata: Metadata = {
-  title: 'How to Find Mispriced Pokémon Cards on eBay (Typo Hunting) | Misprice Hunter',
+  title: 'How to Find Mispriced Pokémon Cards on eBay (Typo Hunting)',
   description:
     'Mispriced Pokémon cards hide behind misspelled titles — Charzard, Pikacu, Blastois. How to find them, beat eBay autocorrect, and verify a real deal before you bid.',
   alternates: { canonical: '/guides/mispriced-pokemon-cards-ebay' },

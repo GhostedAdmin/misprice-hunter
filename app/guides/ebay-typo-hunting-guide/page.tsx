@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { GuideShell, H2, Aff, Fine, Callout } from '../guide-components';
 
 export const metadata: Metadata = {
-  title: 'How to Find Underpriced Pokémon Cards on eBay (Typo Hunting Guide) | Misprice Hunter',
+  title: 'How to Find Underpriced Pokémon Cards on eBay (Typo Hunting Guide)',
   description:
     'Misspelled eBay listings get fewer bids and lower prices. Learn the typo-hunting strategy: classic misspellings, beating eBay autocorrect, and verifying real deals.',
   alternates: { canonical: '/guides/ebay-typo-hunting-guide' },

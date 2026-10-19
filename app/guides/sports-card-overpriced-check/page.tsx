@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   title: 'How to Tell If a Sports Card Is Overpriced Before You Buy | Misprice Hunter',
   description:
     'Stop overpaying for sports cards. Three 90-second checks — eBay sold comps, pop reports, and print runs — that reveal a card\u2019s real value before you buy.',
+  alternates: { canonical: '/guides/sports-card-overpriced-check' },
+
 };
 
 export default function SportsCardOverpricedCheck() {

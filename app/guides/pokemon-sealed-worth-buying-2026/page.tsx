@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   title: 'Pokémon TCG Sealed Products Actually Worth Buying at Retail in 2026 | Misprice Hunter',
   description:
     'Retail discipline is everything in 2026. Which Pokémon sealed products hold value at MSRP, which to never chase on secondary, and the traps burning buyers now.',
+  alternates: { canonical: '/guides/pokemon-sealed-worth-buying-2026' },
+
 };
 
 export default function PokemonSealedWorthBuying2026() {

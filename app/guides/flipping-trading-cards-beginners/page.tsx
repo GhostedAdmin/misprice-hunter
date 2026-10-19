@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   title: "The Beginner's Guide to Flipping Trading Cards for Profit | Misprice Hunter",
   description:
     'How to flip trading cards for profit: where to source deals, when grading makes sense, the real eBay fee math, and honest expectations for beginners.',
+  alternates: { canonical: '/guides/flipping-trading-cards-beginners' },
+
 };
 
 export default function FlippingTradingCardsBeginners() {

@@ -5,6 +5,8 @@ export const metadata: Metadata = {
   title: "Basemint Vault — Links",
   description:
     "Everywhere Basemint Vault lives: typo'd card deals, the Vault pack game, weekly buy sheets, and the market report.",
+  alternates: { canonical: '/links' },
+
 };
 
 type VaultLink = {

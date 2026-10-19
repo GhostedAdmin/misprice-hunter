@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   title: 'Card Collecting Guides | Misprice Hunter',
   description:
     'Free guides for card collectors: typo hunting on eBay, buying Pokémon sealed at retail, spotting overpriced sports cards, and flipping cards for profit.',
+  alternates: { canonical: '/guides' },
+
 };
 
 export default function GuidesIndex() {

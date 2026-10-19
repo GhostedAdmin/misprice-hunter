@@ -50,7 +50,7 @@ export default function WordList() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-14">
       <p className="text-xs font-bold tracking-widest text-amber-400 uppercase">The dictionary</p>
-      <h1 className="mt-3 text-4xl sm:text-5xl font-black tracking-tight">Word list</h1>
+      <h1 className="mt-3 text-4xl sm:text-5xl font-black tracking-tight">Misspelled card search terms</h1>
       <p className="mt-4 text-zinc-400 text-lg">
         Every typo the scanner checks — {MISSPELLINGS.length} search terms, {total} misspellings.
         Pick a typo on any entry to hunt it across every marketplace — no API key needed.

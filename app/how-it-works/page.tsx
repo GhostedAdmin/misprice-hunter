@@ -1,4 +1,17 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'How Typo Arbitrage Works — Find Mispriced Cards on eBay',
+  description:
+    'Sellers typo card titles, nobody searches the typo, and those auctions close low. The 4-step typo-arbitrage playbook: price the real card, hunt the misspelling, verify, bid.',
+  alternates: { canonical: '/how-it-works' },
+  openGraph: {
+    title: 'How Typo Arbitrage Works — Find Mispriced Cards on eBay',
+    description:
+      'Sellers typo card titles, nobody searches the typo, and those auctions close low. The 4-step typo-arbitrage playbook.',
+  },
+};
 
 const STEPS = [
   {
@@ -26,6 +39,41 @@ const STEPS = [
 export default function HowItWorks() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-14">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: [
+              {
+                '@type': 'Question',
+                name: 'Do misspelled card auctions really sell for less?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: 'Often, yes — because eBay search matches listing titles, so a listing titled “Charzard” never appears when everyone searches “Charizard.” Fewer eyeballs usually means fewer bids. It is not guaranteed: condition, timing, and seller reputation still move the final price.',
+                },
+              },
+              {
+                '@type': 'Question',
+                name: 'Does Misprice Hunter buy or bid on listings?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: 'No. It shows market prices to compare against and gives you one-tap searches for each misspelling across eBay, TCGplayer, Mercari, Facebook Marketplace, and Whatnot. You check the listing and place your own bid.',
+                },
+              },
+              {
+                '@type': 'Question',
+                name: 'Do I need an API key or account?',
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: 'No. The hunt buttons are plain marketplace searches — no API key, no account, no install.',
+                },
+              },
+            ],
+          }),
+        }}
+      />
       <p className="text-xs font-bold tracking-widest text-amber-400 uppercase">The playbook</p>
       <h1 className="mt-3 text-4xl sm:text-5xl font-black tracking-tight">How typo arbitrage works</h1>
       <p className="mt-4 text-zinc-400 text-lg">
@@ -52,6 +100,24 @@ export default function HowItWorks() {
           <li>We show market prices worth comparing against. We never claim a deal is verified.</li>
           <li>Set a max bid before the adrenaline hits. Future you says thanks.</li>
         </ul>
+      </div>
+
+      <div className="mt-10 rounded-xl border border-zinc-800 bg-[#141417] p-6">
+        <h2 className="font-bold">Frequently asked questions</h2>
+        <div className="mt-4 space-y-5 text-sm leading-relaxed">
+          <div>
+            <h3 className="font-bold text-white">Do misspelled card auctions really sell for less?</h3>
+            <p className="mt-1 text-zinc-400">Often, yes — because eBay search matches listing titles, so a listing titled “Charzard” never appears when everyone searches “Charizard.” Fewer eyeballs usually means fewer bids. It is not guaranteed: condition, timing, and seller reputation still move the final price.</p>
+          </div>
+          <div>
+            <h3 className="font-bold text-white">Does Misprice Hunter buy or bid on listings?</h3>
+            <p className="mt-1 text-zinc-400">No. It shows market prices to compare against and gives you one-tap searches for each misspelling across eBay, TCGplayer, Mercari, Facebook Marketplace, and Whatnot. You check the listing and place your own bid.</p>
+          </div>
+          <div>
+            <h3 className="font-bold text-white">Do I need an API key or account?</h3>
+            <p className="mt-1 text-zinc-400">No. The hunt buttons are plain marketplace searches — no API key, no account, no install.</p>
+          </div>
+        </div>
       </div>
 
       <div className="mt-10 text-center">

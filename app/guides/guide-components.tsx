@@ -21,6 +21,18 @@ export const GUIDE_META = [
       'eBay sold listings, pop reports, and print runs — the three checks that take 90 seconds and save you from overpaying on every sports card purchase.',
   },
   {
+    slug: 'mispriced-pokemon-cards-ebay',
+    title: 'How to Find Mispriced Pokémon Cards on eBay (Typo Hunting)',
+    excerpt:
+      'Mispriced Pokémon cards hide behind misspelled titles — Charzard, Pikacu, Blastois. How to find them, beat eBay autocorrect, and verify a real deal before you bid.',
+  },
+  {
+    slug: 'how-to-find-mispriced-sports-cards',
+    title: 'How to Find Mispriced Sports Cards (Jordan, Brady, Mahomes & More)',
+    excerpt:
+      'Mispriced sports cards hide behind misspelled names — Micheal Jordan, Leborn James, Tom Braddy. How to hunt the typo, check sold comps, and avoid overpaying.',
+  },
+  {
     slug: 'flipping-trading-cards-beginners',
     title: "The Beginner's Guide to Flipping Trading Cards for Profit",
     excerpt:

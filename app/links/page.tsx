@@ -28,6 +28,13 @@ const LINKS: VaultLink[] = [
     featured: true,
   },
   {
+    href: "https://thatsit.cards/s/thebasemintvault",
+    icon: "🛒",
+    title: "Shop the Vault",
+    sub: "Graded slabs & raw singles — sports and Pokémon, priced off real sold comps",
+    badge: "Shop",
+  },
+  {
     href: "https://misprice-hunter.vercel.app/",
     icon: "🎯",
     title: "Misprice Hunter",
